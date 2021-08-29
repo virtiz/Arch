@@ -12,7 +12,8 @@ export lang="en_US.UTF-8"
 export locale="en_US.UTF-8 UTF-8"
 export timezone="America/Phoenix"
 export $country="United States"
-export $username $hostname
+export $username
+export $hostname
 
 ####Partition Drive####
 sudo parted $device mklabel gpt
@@ -65,10 +66,22 @@ passwd root
 useradd -m -g users -G wheel $username
 echo "Password for "$username
 passwd $username
+#add firmware
+mkdir ./temp && cd ./temp
+sudo -u $USERNAME git clone https://aur.archlinux.org/aic94xx-firmware.git
+sudo -u $USERNAME git clone https://aur.archlinux.org/wd719x-firmware.git
+sudo -u $USERNAME git clone https://aur.archlinux.org/xhci_pci-firmware.git
+cd aic94xx-firmware sudo -u $USERNAME makepkg -sri --noconfirm
+cd /temp/wd719x-firmware  && sudo -u $USERNAME makepkg -sri --noconfirm
+cd /temp/xhci_pci-firmware  && sudo -u $USERNAME makepkg -sri --noconfirm
+cd .. && cd .. && rm -R /temp 
+sudo pacman -Syyu
+
+#install bootloader
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
-sudo pacman -Syyu
+
 }
 export -f Buildout
 arch-chroot /mnt /bin/bash -c "Buildout"
