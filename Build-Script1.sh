@@ -1,6 +1,6 @@
 #!/bin/sh -e
-chmod +x  /usr/bin/test2.sh
-chmod +x  /usr/bin/test3.sh
+chmod +x  ./Build-Script2.sh
+chmod +x  ./Build-Script3.sh
 sudo parted /dev/vda mklabel gpt
 sudo parted /dev/vda mkpart ESP fat32 1MiB 513MiB
 sudo parted /dev/vda set 1 boot on
@@ -32,7 +32,7 @@ mount /dev/vda1 /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
-cp  /usr/bin/test2.sh /mnt
-cp /usr/bin/test2.sh /mnt
+cp  ./Build-Script2.sh /mnt
+cp ./Build-Script3.sh /mnt
 arch-chroot /mnt /bin/bash
 vim /etc/mkinitcpio.conf
