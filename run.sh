@@ -2,15 +2,15 @@
 
 ######Define Vairables#####
 echo -n "What username would you like? "
-read username
+export username=read username
 echo -n "What HostName would you like? "
-read hostname
+export hostname=read reply
 echo -n "What drive do you want to install on? ie: /dev/vda "
-read device
+export device=read devname
 echo -n "what is your locale?  ex: America/Phoenix "
-read locale
+export locale=read local
 echo -n "what is your country? ie: United States"
-read country
+export country=read countrycode
 
 ####Partition Drive####
 sudo parted $device mklabel gpt
@@ -46,10 +46,6 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
 cat ./sudoers | awk '{sub(/chris/,"'$username'")}1' > /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
-export $hostname
-export $username
-export $locale
-export $country
 buildout(){
 mkinitcpio -p linux
 pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
