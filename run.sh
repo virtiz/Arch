@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+######Define Vairables#####
 echo -n "What username would you like? "
 read username
 echo -n "What HostName would you like? "
@@ -9,6 +11,8 @@ echo -n "what is your locale?  ex: America/Phoenix "
 read locale
 echo -n "what is your country? ie: United States"
 read country
+
+####Partition Drive####
 sudo parted $device mklabel gpt
 sudo parted $device mkpart ESP fat32 1MiB 513MiB
 sudo parted $device set 1 boot on
@@ -17,9 +21,7 @@ sudo parted $device mkpart primary 513MiB 800MiB
 sudo parted $device name 2 boot
 sudo parted $device mkpart primary 800MiB 100%
 sudo parted $device name 3 lvm
-sudo parted $device print
 sudo parted $device set 3 lvm on
-sudo parted $device print
 pvcreate $device"3"
 vgcreate lvm $device"3"
 lvcreate -n root -L 15G lvm
@@ -37,38 +39,35 @@ mount $device"2" /mnt/boot
 mkdir /mnt/boot/efi
 mount $device"1" /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
+
+####Setup Configs####
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 nano --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
 cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
 cat ./sudoers | awk '{sub(/chris/,"'$username'")}1' > /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
-pacman -Sy --needed --noconfirm reflector
-reflector --country $country --age 12 --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist
 export $hostname
 export $username
 export $locale
 buildout(){
-sudo pacman -S lvm2 --noconfirm
 mkinitcpio -p linux
-pacman -S grub --noconfirm
-pacman -Sy lvm2 networkmanager --noconfirm
-systemctl enable NetworkManager
+pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
+reflector --country $country --age 12 --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist
 ln -s /usr/share/zoneinfo/$locale /etc/localtime
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 hwclock --systohc
-pacman -Sy vim sudo iwd systemd openssh nano networkmanager firefox grub efibootmgr --noconfirm 
 locale-gen
-echo $hostname > /etc/hostname
-sudo pacman -Syyu
-systemctl enable {iwd.service,sshd.service}
+echo "$hostname" > /etc/hostname
+systemctl enable {iwd.service,sshd.service,NetworkManager}
 echo "Password for root"
 passwd root
 useradd -m -g users -G wheel -s /bin/bash $username
-echo "Password for chris"
+echo "Password for $username"
 passwd $username
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
+sudo pacman -Syyu
 }
 export -f buildout
 arch-chroot /mnt /bin/bash -c "buildout"
