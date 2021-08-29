@@ -1,8 +1,7 @@
 # Arch
-#Arch Install files
+#Automated Arch Install for Basic barebones install
 
-#This will be a basic Arch-linux install with LVM partitions 
+#Actions:
+#Partition drive, add needed packages, Create user account, install Grub bootloader
 
-#Edit the sudoers file to be your username instead of "chris"
-
-#modify Build-Script2.sh to create your username instead of "chris"
+Run fdisk-l before starting and see what your 
