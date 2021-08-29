@@ -11,7 +11,6 @@ read device
 export lang="en_US.UTF-8"
 export locale="en_US.UTF-8 UTF-8"
 export timezone="America/Phoenix"
-export $country="United States"
 export $username
 export $hostname
 
@@ -44,15 +43,14 @@ mount $device"1" /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
-pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 nano --noconfirm
+pacstrap /mnt base linux linux-firmware --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
 awk '{sub(/"f block f"/,"f block lvm2 f")}1' < /mnt/etc/mkinitcpio.conf  > ./temp ; cp ./temp /mnt/etc/mkinitcpio.conf 
 
 #Function Buildout
 Buildout(){
 mkinitcpio -p linux
-pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
-reflector --country $country --age 12 --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist
+pacman -Sy  efibootmgr vim base-devel btrfs-progs lvm2 nano grub lvm2 networkmanager sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
 echo $hostname > /etc/hostname
 ln -s /usr/share/zoneinfo/$timezone /etc/localtime
 echo "LANG=$lang" >> /etc/locale.conf
