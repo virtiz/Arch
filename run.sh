@@ -48,7 +48,7 @@ pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lv
 genfstab -U -p /mnt > /mnt/etc/fstab
 awk '{sub(/"f block f"/,"f block lvm2 f")}1' < /mnt/etc/mkinitcpio.conf  > ./temp ; cp ./temp /mnt/etc/mkinitcpio.conf 
 awk '{sub(/chris/,"'$username'")}1' < sudoers  > /mnt/etc/sudoers
-awk '{sub(/"#'$lang' UTF-8"/,"'$lang' UTF-8")}1' < locale.gen  > /mnt/etc/locale.gen
+awk '{sub(/"#'$lang' UTF-8"/,"'$lang' UTF-8")}1' < /mnt/etc/locale.gen  > ./temp ; cp ./temp /mnt/etc/locale.gen
 
 #Function Buildout
 Buildout(){
