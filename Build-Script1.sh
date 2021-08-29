@@ -39,6 +39,6 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
 cat ./sudoers | awk '{sub(/chris/,"'$username'")}1' > /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
-cat ./Build-Script2.sh | awk '{sub(/chris/,"'$username'")}1' > awk '{sub(/checklocale/,"'$locale'")}1' >  /mnt/Build-Script2.sh
+cat ./Build-Script2.sh | awk '{sub(/chris/,"'$username'")}1' | awk '{sub(/checklocale/,"'$locale'")}1' >  /mnt/Build-Script2.sh
 chmod +x /mnt/Build-Script2.sh
 arch-chroot /mnt /bin/bash
