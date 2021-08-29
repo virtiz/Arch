@@ -58,7 +58,7 @@ ln -s /usr/share/zoneinfo/$locale /etc/localtime
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 hwclock --systohc
 locale-gen
-echo "'$hostname'" > /etc/hostname
+echo "$hostname" > /etc/hostname
 systemctl enable {iwd.service,sshd.service,NetworkManager}
 echo "Password for root"
 passwd root
