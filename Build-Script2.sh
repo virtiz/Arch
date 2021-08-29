@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 sudo pacman -S lvm2 --noconfirm
 mkinitcpio -p linux
 pacman -S grub --noconfirm
