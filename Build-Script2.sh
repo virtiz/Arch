@@ -14,8 +14,10 @@ locale-gen
 echo arch1 > /etc/hostname
 sudo pacman -Syyu
 systemctl enable {iwd.service,sshd.service}
+echo "Password for root"
 passwd root
 useradd -m -g users -G wheel -s /bin/bash chris
+echo "Password for your user account"
 passwd chris
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
