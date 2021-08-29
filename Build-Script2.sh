@@ -17,7 +17,7 @@ systemctl enable {iwd.service,sshd.service}
 echo "Password for root"
 passwd root
 useradd -m -g users -G wheel -s /bin/bash chris
-echo "Password for your user account"
+echo "Password for chris"
 passwd chris
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
