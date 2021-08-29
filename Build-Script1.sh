@@ -21,7 +21,6 @@ vgcreate lvm $device"3"
 lvcreate -n root -L 15G lvm
 lvcreate -n swap -L 10G lvm
 lvcreate -n home -l 100%FREE lvm
-lvs
 mkfs.fat -F32 $device"1"
 mkfs.ext2 $device"2"
 mkfs.btrfs -L root /dev/lvm/root
