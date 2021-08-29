@@ -5,7 +5,8 @@ echo -n "What username would you like? "
 read user2
 export username=$user2
 echo -n "What HostName would you like? "
-read hostname
+read host
+export hostname=$host
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
 
@@ -43,7 +44,6 @@ mount $device"2" /mnt/boot
 mkdir /mnt/boot/efi
 mount $device"1" /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
-echo $hostname > /mnt/etc/hostname
 ####Setup Configs####
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 nano --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
@@ -52,6 +52,7 @@ cat ./sudoers | awk '{sub(/chris/,"'$username'")}1' > /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
 #Function
 buildout(){
+echo $hostname > etc/hostname
 mkinitcpio -p linux
 pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
 reflector --country $country --age 12 --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist
