@@ -1,6 +1,7 @@
 # Automated Arch Install for Basic barebones install
 
-#//Actions:
+//Actions:
+
 #Partition drive, add needed packages, Create user account, install Grub bootloader
 
 #Run fdisk-l before starting to get your device name
