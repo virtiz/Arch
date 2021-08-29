@@ -1,4 +1,6 @@
 #!/bin/sh -e
+echo -n "What username would you like?"
+read username
 chmod +x  ./Build-Script2.sh
 sudo parted /dev/vda mklabel gpt
 sudo parted /dev/vda mkpart ESP fat32 1MiB 513MiB
@@ -31,9 +33,9 @@ mount /dev/vda1 /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
-cp  ./Build-Script2.sh /mnt
 cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
-cp sudoers /mnt/etc/sudoers
+cat ./sudoers awk '{sub(/chris/,"$username")}1' /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
 arch-chroot /mnt /bin/bash
-./Build-Script2.sh
+cat ./Build-Script2.sh | awk '{sub(/chris/,"$username")}1' /mnt/Build-Script2.sh
+
