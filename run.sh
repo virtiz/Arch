@@ -2,20 +2,18 @@
 
 ######Define Vairables#####
 echo -n "What username would you like? "
-read user2
-export username=$user2
+read username
 echo -n "What HostName would you like? "
-read host
-export hostname=$host
+read hostname
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
-
 echo -n "what is your locale?  ex: America/Phoenix "
 read local
-export locale=$local
 echo -n "what is your country? ie: United States "
-read countrycode
-export country=$countrycode
+read country
+echo -n "what is your Language? ie: en_US.UTF-8"
+read lang
+export $username $hostname $local $country $lang
 
 ####Partition Drive####
 sudo parted $device mklabel gpt
@@ -44,20 +42,22 @@ mount $device"2" /mnt/boot
 mkdir /mnt/boot/efi
 mount $device"1" /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
+
 ####Setup Configs####
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 nano --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
-cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
-cat ./sudoers | awk '{sub(/chris/,"'$username'")}1' > /mnt/etc/sudoers
-cp locale.gen /mnt/etc/locale.gen
-#Function
-buildout(){
+awk '{sub(/"f block f"/,"f block lvm2 f")}1' < /mnt/etc/mkinitcpio.conf  > ./temp ; cp ./temp /mnt/etc/mkinitcpio.conf 
+awk '{sub(/chris/,"'$username'")}1' < sudoers  > /mnt/etc/sudoers
+awk '{sub(/"#'$lang' UTF-8"/,"'$lang' UTF-8")}1' < locale.gen  > /mnt/etc/locale.gen
+
+#Function Buildout
+Buildout(){
 echo $hostname > etc/hostname
 mkinitcpio -p linux
 pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
 reflector --country $country --age 12 --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist
 ln -s /usr/share/zoneinfo/$locale /etc/localtime
-echo LANG=en_US.UTF-8 > /etc/locale.conf
+echo LANG=$locale >> /etc/locale.conf
 hwclock --systohc
 locale-gen
 systemctl enable {iwd.service,sshd.service,NetworkManager}
@@ -71,6 +71,6 @@ grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 sudo pacman -Syyu
 }
-export -f buildout
+export -f Buildout
 arch-chroot /mnt /bin/bash -c "buildout"
 echo "you can reboot now"
