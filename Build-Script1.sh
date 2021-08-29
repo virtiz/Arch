@@ -36,4 +36,5 @@ cp  ./Build-Script2.sh /mnt
 cp ./Build-Script3.sh /mnt
 cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
 cp sudoers /mnt/etc/sudoers
+cp local.gen /mnt/etc/locale.gen
 arch-chroot /mnt /bin/bash
