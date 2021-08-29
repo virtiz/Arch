@@ -1,6 +1,5 @@
 #!/bin/sh -e
 chmod +x  ./Build-Script2.sh
-chmod +x  ./Build-Script3.sh
 sudo parted /dev/vda mklabel gpt
 sudo parted /dev/vda mkpart ESP fat32 1MiB 513MiB
 sudo parted /dev/vda set 1 boot on
