@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -e
 
 ######Define Vairables#####
 echo -n "What username would you like? "
