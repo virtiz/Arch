@@ -1,7 +1,6 @@
 #!/bin/sh
 echo -n "What username would you like? "
 read username
-chmod +x  ./Build-Script2.sh
 sudo parted /dev/vda mklabel gpt
 sudo parted /dev/vda mkpart ESP fat32 1MiB 513MiB
 sudo parted /dev/vda set 1 boot on
@@ -37,4 +36,5 @@ cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
 cat ./sudoers | awk '{sub(/chris/,"'$username'")}1' > /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
 cat ./Build-Script2.sh | awk '{sub(/chris/,"'$username'")}1' > /mnt/Build-Script2.sh
+chmod +x /mnt/Build-Script2.sh
 arch-chroot /mnt /bin/bash
