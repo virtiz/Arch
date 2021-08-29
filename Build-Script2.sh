@@ -1,5 +1,6 @@
 #!/bin/sh
 locale=checklocale
+host=checkhost
 sudo pacman -S lvm2 --noconfirm
 mkinitcpio -p linux
 pacman -S grub --noconfirm
@@ -10,7 +11,7 @@ echo LANG=en_US.UTF-8 > /etc/locale.conf
 hwclock --systohc
 pacman -Sy vim sudo iwd systemd openssh nano networkmanager firefox grub efibootmgr --noconfirm 
 locale-gen
-echo arch1 > /etc/hostname
+echo $host > /etc/hostname
 sudo pacman -Syyu
 systemctl enable {iwd.service,sshd.service}
 echo "Password for root"
