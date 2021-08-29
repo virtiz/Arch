@@ -34,5 +34,6 @@ pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lv
 genfstab -U -p /mnt > /mnt/etc/fstab
 cp  ./Build-Script2.sh /mnt
 cp ./Build-Script3.sh /mnt
+cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
+cp sudoers /mnt/etc/sudoers
 arch-chroot /mnt /bin/bash
-vim /etc/mkinitcpio.conf
