@@ -49,6 +49,7 @@ cp locale.gen /mnt/etc/locale.gen
 export $hostname
 export $username
 export $locale
+export $country
 buildout(){
 mkinitcpio -p linux
 pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
@@ -57,13 +58,13 @@ ln -s /usr/share/zoneinfo/$locale /etc/localtime
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 hwclock --systohc
 locale-gen
-echo "$hostname" > /etc/hostname
+echo "'$hostname'" > /etc/hostname
 systemctl enable {iwd.service,sshd.service,NetworkManager}
 echo "Password for root"
 passwd root
-useradd -m -g users -G wheel -s /bin/bash $username
-echo "Password for $username"
-passwd $username
+useradd -m -g users -G wheel -s /bin/bash "$username"
+echo "Password for "$username
+passwd "$username"
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
