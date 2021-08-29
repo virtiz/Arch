@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 echo -n "What username would you like?"
 read username
 chmod +x  ./Build-Script2.sh
