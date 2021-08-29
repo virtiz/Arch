@@ -37,3 +37,4 @@ cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
 cp sudoers /mnt/etc/sudoers
 cp local.gen /mnt/etc/locale.gen
 arch-chroot /mnt /bin/bash
+./Build-Script2.sh
