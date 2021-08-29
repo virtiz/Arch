@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -e
+#!/bin/sh -e
 
 ######Define Vairables#####
 echo -n "What username would you like? "
@@ -50,7 +50,7 @@ awk '{sub(/"f block f"/,"f block lvm2 f")}1' < /mnt/etc/mkinitcpio.conf  > ./tem
 #Function Buildout
 Buildout(){
 mkinitcpio -p linux
-pacman -Sy  efibootmgr vim base-devel btrfs-progs lvm2 nano grub lvm2 networkmanager sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
+pacman -Sy  efibootmgr vim base-devel lvm2 nano grub lvm2 networkmanager sudo iwd systemd openssh nano firefox efibootmgr --noconfirm
 echo $hostname > /etc/hostname
 ln -s /usr/share/zoneinfo/$timezone /etc/localtime
 echo "LANG=$lang" >> /etc/locale.conf
@@ -64,15 +64,14 @@ passwd root
 useradd -m -g users -G wheel $username
 echo "Password for "$username
 passwd $username
+
 #add firmware
 mkdir ./temp && cd ./temp
-sudo -u $USERNAME git clone https://aur.archlinux.org/aic94xx-firmware.git
-sudo -u $USERNAME git clone https://aur.archlinux.org/wd719x-firmware.git
-sudo -u $USERNAME git clone https://aur.archlinux.org/xhci_pci-firmware.git
-cd aic94xx-firmware sudo -u $USERNAME makepkg -sri --noconfirm
-cd /temp/wd719x-firmware  && sudo -u $USERNAME makepkg -sri --noconfirm
-cd /temp/xhci_pci-firmware  && sudo -u $USERNAME makepkg -sri --noconfirm
-cd .. && cd .. && rm -R /temp 
+git clone https://aur.archlinux.org/aic94xx-firmware.git
+git clone https://aur.archlinux.org/wd719x-firmware.git
+cd aic94xx-firmware && sudo -u $username makepkg -sri --noconfirm
+cd /temp/wd719x-firmware  && sudo -u $username makepkg -sri --noconfirm
+cd / && rm -r /temp 
 sudo pacman -Syyu
 
 #install bootloader
