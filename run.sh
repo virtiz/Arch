@@ -83,3 +83,5 @@ mkinitcpio -p linux
 export -f Buildout
 arch-chroot /mnt /bin/bash -c "Buildout"
 echo "you can reboot now"
+#issues
+#locale not saving, username is blank, firmware not installing
