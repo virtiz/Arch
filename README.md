@@ -6,7 +6,7 @@
 
 #Run fdisk-l before starting to get your device name
 
-#run the following on a brand new Arch-Linux LIVECD boot.
+//run the following on a brand new Arch-Linux LIVECD boot.
 
 sudo pacman -Sy git
 
