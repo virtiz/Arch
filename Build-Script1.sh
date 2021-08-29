@@ -34,8 +34,7 @@ mount /dev/lvm/home /mnt/home
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
 cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
-cat ./sudoers awk '{sub(/chris/,"$username")}1' /mnt/etc/sudoers
+cat ./sudoers | awk '{sub(/chris/,"$username")}1' /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
-arch-chroot /mnt /bin/bash
 cat ./Build-Script2.sh | awk '{sub(/chris/,"$username")}1' /mnt/Build-Script2.sh
-
+arch-chroot /mnt /bin/bash
