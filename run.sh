@@ -5,15 +5,14 @@ echo -n "What username would you like? "
 read user2
 export username=user2
 echo -n "What HostName would you like? "
-read reply
-export hostname=reply
+read hostname
 echo -n "What drive do you want to install on? ie: /dev/vda "
-read devname
-export device=devname
+read device
+
 echo -n "what is your locale?  ex: America/Phoenix "
 read local
 export locale=local
-echo -n "what is your country? ie: United States"
+echo -n "what is your country? ie: United States "
 read countrycode
 export country=countrycode
 
@@ -44,13 +43,14 @@ mount $device"2" /mnt/boot
 mkdir /mnt/boot/efi
 mount $device"1" /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
-
+echo $hostname > /mnt/etc/hostname
 ####Setup Configs####
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 nano --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
 cp mkinitcpio.conf /mnt/etc/mkinitcpio.conf
 cat ./sudoers | awk '{sub(/chris/,"'$username'")}1' > /mnt/etc/sudoers
 cp locale.gen /mnt/etc/locale.gen
+#Function
 buildout(){
 mkinitcpio -p linux
 pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
@@ -59,13 +59,12 @@ ln -s /usr/share/zoneinfo/$locale /etc/localtime
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 hwclock --systohc
 locale-gen
-echo "$hostname" > /etc/hostname
 systemctl enable {iwd.service,sshd.service,NetworkManager}
 echo "Password for root"
 passwd root
-useradd -m -g users -G wheel -s /bin/bash "$username"
+useradd -m -g users -G wheel -s /bin/bash $username
 echo "Password for "$username
-passwd "$username"
+passwd $username
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
