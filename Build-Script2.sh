@@ -1,5 +1,5 @@
 #!/bin/sh -e
-Sudo pacman -S lvm2 --noconfirm
+sudo pacman -S lvm2 --noconfirm
 mkinitcpio -p linux
 pacman -S grub --noconfirm
 pacman -Sy lvm2 networkmanager --noconfirm
