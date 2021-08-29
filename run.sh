@@ -7,13 +7,12 @@ echo -n "What HostName would you like? "
 read hostname
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
-echo -n "what is your locale?  ex: America/Phoenix "
-read local
-echo -n "what is your country? ie: United States "
-read country
-echo -n "what is your Language? ie: en_US.UTF-8"
-read lang
-export $username $hostname $local $country $lang
+
+export lang="en_US.UTF-8"
+export locale="en_US.UTF-8 UTF-8"
+export timezone="America/Phoenix"
+export $country="United States"
+export $username $hostname
 
 ####Partition Drive####
 sudo parted $device mklabel gpt
@@ -47,23 +46,23 @@ mount /dev/lvm/home /mnt/home
 pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs lvm2 nano --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
 awk '{sub(/"f block f"/,"f block lvm2 f")}1' < /mnt/etc/mkinitcpio.conf  > ./temp ; cp ./temp /mnt/etc/mkinitcpio.conf 
-awk '{sub(/chris/,"'$username'")}1' < sudoers  > /mnt/etc/sudoers
-awk '{sub(/"#'$lang' UTF-8"/,"'$lang' UTF-8")}1' < /mnt/etc/locale.gen  > ./temp ; cp ./temp /mnt/etc/locale.gen
 
 #Function Buildout
 Buildout(){
-echo $hostname > etc/hostname
 mkinitcpio -p linux
 pacman -Sy grub lvm2 networkmanager vim sudo iwd systemd openssh nano firefox efibootmgr reflector --noconfirm
 reflector --country $country --age 12 --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist
-ln -s /usr/share/zoneinfo/$locale /etc/localtime
-echo LANG=$locale >> /etc/locale.conf
-hwclock --systohc
+echo $hostname > /etc/hostname
+ln -s /usr/share/zoneinfo/$timezone /etc/localtime
+echo "LANG=$lang" >> /etc/locale.conf
+sed -i "/$locale/s/^#//" /etc/locale.gen
+sed -i '/^# %wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
 locale-gen
+hwclock --systohc
 systemctl enable {iwd.service,sshd.service,NetworkManager}
 echo "Password for root"
 passwd root
-useradd -m -g users -G wheel -s /bin/bash $username
+useradd -m -g users -G wheel $username
 echo "Password for "$username
 passwd $username
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
@@ -72,5 +71,5 @@ mkinitcpio -p linux
 sudo pacman -Syyu
 }
 export -f Buildout
-arch-chroot /mnt /bin/bash -c "buildout"
+arch-chroot /mnt /bin/bash -c "Buildout"
 echo "you can reboot now"
