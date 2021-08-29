@@ -48,8 +48,6 @@ export $hostname
 export $username
 export $locale
 buildout(){
-pacman -S --needed --noconfirm haveged
-  systemctl enable haveged
 sudo pacman -S lvm2 --noconfirm
 mkinitcpio -p linux
 pacman -S grub --noconfirm
@@ -73,6 +71,5 @@ grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 }
 export -f buildout
-arch-chroot /mnt /bin/bash -c "archroot"
-umount -l /mnt
-reboot
+arch-chroot /mnt /bin/bash -c "buildout"
+echo "you can reboot now"
