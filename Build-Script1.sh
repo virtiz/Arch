@@ -3,7 +3,7 @@ echo -n "What username would you like? "
 read username
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
-echo -n "what is your locale?  ex: America/Phoenix"
+echo -n "what is your locale?  ex: America/Phoenix "
 read locale
 sudo parted $device mklabel gpt
 sudo parted $device mkpart ESP fat32 1MiB 513MiB
