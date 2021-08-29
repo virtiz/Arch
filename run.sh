@@ -3,7 +3,7 @@
 ######Define Vairables#####
 echo -n "What username would you like? "
 read user2
-export username=user2
+export username=$user2
 echo -n "What HostName would you like? "
 read hostname
 echo -n "What drive do you want to install on? ie: /dev/vda "
@@ -11,10 +11,10 @@ read device
 
 echo -n "what is your locale?  ex: America/Phoenix "
 read local
-export locale=local
+export locale=$local
 echo -n "what is your country? ie: United States "
 read countrycode
-export country=countrycode
+export country=$countrycode
 
 ####Partition Drive####
 sudo parted $device mklabel gpt
