@@ -1,6 +1,5 @@
 #!/bin/sh
-echo -n "what is your locale?  ex: America/Phoenix"
-read local
+locale=checklocale
 sudo pacman -S lvm2 --noconfirm
 mkinitcpio -p linux
 pacman -S grub --noconfirm
