@@ -4,13 +4,6 @@
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
 
-export lang="en_US.UTF-8"
-export locale="en_US.UTF-8 UTF-8"
-export username=$user2
-export hostname=$host
-export locale=$local
-
-
 ####Partition Drive####
 sudo parted $device mklabel gpt
 sudo parted $device mkpart ESP fat32 1MiB 513MiB
@@ -54,6 +47,12 @@ read host
 echo -n "what is your locale?  ex: America/Phoenix "
 read locale
 
+export lang="en_US.UTF-8"
+export locale="en_US.UTF-8 UTF-8"
+export username=$user2
+export hostname=$host
+export locale=$local
+
 #Set information for devices/timezones
 echo $hostname > /etc/hostname
 ln -s /usr/share/zoneinfo/$countrycode/$timezone /etc/localtime
@@ -81,7 +80,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
 #Give users with Wheel sudo access
-sed -i '/^# %wheel ALL=(ALL) awALL/s/^# //' /etc/sudoers
+sed -i '/^# %wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
 
 #Enable Services
 systemctl enable {sshd,NetworkManager}
