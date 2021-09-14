@@ -6,8 +6,10 @@ read device
 
 export lang="en_US.UTF-8"
 export locale="en_US.UTF-8 UTF-8"
-export $username
-export $hostname
+export username=$user2
+export hostname=$host
+export locale=$local
+
 
 ####Partition Drive####
 sudo parted $device mklabel gpt
