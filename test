@@ -45,7 +45,7 @@ read user2
 echo -n "What HostName would you like? "
 read host
 echo -n "what is your locale?  ex: America/Phoenix "
-read local
+read locale
 
 pacman -Sy  networkmanager neovim lvm2 sudo brave openssh --noconfirm
 
