@@ -33,7 +33,7 @@ mount $device"1" /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
-pacstrap /mnt base base-devel linux linux-firmware grub efibootmgr vim btrfs-progs --noconfirm
+pacstrap /mnt base base-devel linux linux-firmware efibootmgr vim btrfs-progs --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
 
 #Function Buildout
@@ -41,21 +41,19 @@ Buildout(){
 
 #Ask Questions
 echo -n "What username would you like? "
-read user2
+read username
 echo -n "What HostName would you like? "
-read host
+read hostname
 echo -n "what is your locale?  ex: America/Phoenix "
-read locale
+read timezone
 
-export lang="en_US.UTF-8"
-export locale="en_US.UTF-8 UTF-8"
-export username=$user2
-export hostname=$host
-export locale=$local
+lang="en_US.UTF-8"
+locale="en_US.UTF-8 UTF-8"
+
 
 #Set information for devices/timezones
 echo $hostname > /etc/hostname
-ln -s /usr/share/zoneinfo/$countrycode/$timezone /etc/localtime
+ln -s /usr/share/zoneinfo/$timezone /etc/localtime
 echo "LANG=$lang" >> /etc/locale.conf
 sed -i "/$locale/s/^#//" /etc/locale.gen
 locale-gen
@@ -69,12 +67,14 @@ echo "Password for "$username
 passwd $username
 
 #Install base softwares
-pacman -Syyu networkmanager neovim lvm2 sudo brave openssh --noconfirm
+pacman -Syyu
+pacman -Sy networkmanager grub neovim lvm2 sudo brave openssh --noconfirm
 
 #Correct hooks to add lvm2
 sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/s/^/HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)'/ /etc/mkinitcpio.conf
 
 #Grub install
+####Setup Configs####
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
