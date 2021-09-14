@@ -34,27 +34,22 @@ mount $device"1" /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
-pacstrap /mnt base linux linux-firmware --noconfirm
+pacstrap /mnt base base-devel linux linux-firmware grub efibootmgr vim btrfs-progs --noconfirm
 genfstab -U -p /mnt > /mnt/etc/fstab
-awk '{sub(/"f block f"/,"f block lvm2 f")}1' < /mnt/etc/mkinitcpio.conf  > ./temp ; cp ./temp /mnt/etc/mkinitcpio.conf
 
 #Function Buildout
 Buildout(){
 
 echo -n "What username would you like? "
 read user2
-export username=$user2
 echo -n "What HostName would you like? "
 read host
-export hostname=$host
 echo -n "what is your locale?  ex: America/Phoenix "
 read local
-export locale=$timezone
 
-export lang="en_US.UTF-8"
-export locale="en_US.UTF-8 UTF-8"
+pacman -Sy  networkmanager neovim lvm2 sudo brave openssh --noconfirm
 
-pacman -Sy  efibootmgr vim base base-devel nano grub lvm2 networkmanager sudo iwd systemd openssh nano firefox efibootmgr --noconfirm
+sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/s/^/HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)'/ /etc/mkinitcpio.conf
 
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -64,10 +59,10 @@ echo $hostname > /etc/hostname
 ln -s /usr/share/zoneinfo/$countrycode/$timezone /etc/localtime
 echo "LANG=$lang" >> /etc/locale.conf
 sed -i "/$locale/s/^#//" /etc/locale.gen
-sed -i '/^# %wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
+sed -i '/^# %wheel ALL=(ALL) awALL/s/^# //' /etc/sudoers
 locale-gen
 hwclock --systohc
-systemctl enable {iwd.service,sshd.service,NetworkManager}
+systemctl enable {sshd,NetworkManager}
 echo "Password for root"
 passwd root
 useradd -m -g users -G wheel $username
