@@ -3,7 +3,7 @@
 ######Define Vairables#####
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
-
+#this line is a test-delete it
 ####Partition Drive####
 sudo parted $device mklabel gpt
 sudo parted $device mkpart ESP fat32 1MiB 513MiB
