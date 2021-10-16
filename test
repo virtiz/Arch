@@ -22,7 +22,7 @@ bootpart=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
 mkfs.fat -F32 $efipart
 mkfs.ext2 $bootpart
 echo "partitions formatted"
-pvcreate $lvmpart
+pvcreate -ff $lvmpart
 vgcreate lvm $lvmpart
 lvcreate -n root -L 50G lvm
 lvcreate -n swap -L 32G lvm
@@ -43,7 +43,7 @@ mount $bootpart /mnt/boot
 echo "mounted boot"
 mkdir /mnt/boot/efi
 mount $efipart /mnt/boot/efi
-echo" mounted efi"
+echo "mounted efi"
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
