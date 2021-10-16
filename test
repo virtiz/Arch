@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
 ######Define Vairables#####
+fdisk -l
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
 
@@ -14,22 +15,25 @@ sudo parted $device name 2 boot
 sudo parted $device mkpart primary 800MiB 100%
 sudo parted $device name 3 lvm
 sudo parted $device set 3 lvm on
-pvcreate $device"3"
-vgcreate lvm $device"3"
-lvcreate -n root -L 15G lvm
-lvcreate -n swap -L 10G lvm
+lvmdevice=`sudo fdisk -l $device | grep LVM | awk '{print $1}'`
+efidevice=`sudo fdisk -l $device | grep EFI | awk '{print $1}'`
+bootdevice=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
+pvcreate $lvmdevice
+vgcreate lvm lvmdevice
+lvcreate -n root -L 50G lvm
+lvcreate -n swap -L 32G lvm
 lvcreate -n home -l 100%FREE lvm
-mkfs.fat -F32 $device"1"
-mkfs.ext2 $device"2"
+mkfs.fat -F32 $efidevice
+mkfs.ext2 $bootdevice
 mkfs.btrfs -L root /dev/lvm/root
 mkfs.btrfs -L home /dev/lvm/home
 mkswap /dev/lvm/swap
 swapon /dev/lvm/swap
 mount /dev/lvm/root /mnt
 mkdir /mnt/{home,boot}
-mount $device"2" /mnt/boot
+mount $bootdevice /mnt/boot
 mkdir /mnt/boot/efi
-mount $device"1" /mnt/boot/efi
+mount $efidevice /mnt/boot/efi
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
@@ -41,17 +45,15 @@ Buildout(){
 
 #Ask Questions
 echo -n "What username would you like? "
-read user2
+read username
 echo -n "What HostName would you like? "
-read host
+read hostname
 echo -n "what is your locale?  ex: America/Phoenix "
 read locale
 
-export lang="en_US.UTF-8"
-export locale="en_US.UTF-8 UTF-8"
-export username=$user2
-export hostname=$host
-export locale=$local
+lang="en_US.UTF-8"
+locale="en_US.UTF-8 UTF-8"
+
 
 #Set information for devices/timezones
 echo $hostname > /etc/hostname
@@ -69,7 +71,7 @@ echo "Password for "$username
 passwd $username
 
 #Install base softwares
-pacman -Syyu networkmanager neovim lvm2 sudo brave openssh --noconfirm
+sudo pacman -Sy && sudo pacman -S networkmanager neovim lvm2 sudo brave openssh --noconfirm
 
 #Correct hooks to add lvm2
 sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/s/^/HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)'/ /etc/mkinitcpio.conf
