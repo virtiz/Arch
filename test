@@ -81,11 +81,11 @@ echo "Password for "$username
 passwd $username
 
 #Install base softwares
-sudo pacman -Sy && sudo pacman -S networkmanager neovim lvm2 sudo brave openssh --noconfirm
+sudo pacman -Sy && sudo pacman -S networkmanager neovim lvm2 sudo openssh --noconfirm
 
 #Correct hooks to add lvm2
-sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/s/^/HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)'/ /etc/mkinitcpio.conf
-
+sed '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/ i HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)' /etc/mkinitcpio.conf
+sed '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/ d' /etc/mkinitcpio.conf
 #Grub install
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
