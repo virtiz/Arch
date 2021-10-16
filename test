@@ -80,7 +80,7 @@ echo "Password for "$username
 passwd $username
 
 #Install base softwares
-sudo pacman -Sy && sudo pacman -S networkmanager neovim lvm2 sudo openssh --noconfirm
+sudo pacman -Sy && sudo pacman -S networkmanager lvm2 sudo openssh git --noconfirm
 
 #Correct hooks to add lvm2
 sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/ i HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)' /etc/mkinitcpio.conf
@@ -92,6 +92,12 @@ mkinitcpio -p linux
 
 #Give users with Wheel sudo access
 sed -i '/^# %wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
+sed -i "/root ALL=(ALL)/ i $username ALL=(ALL) ALL" /etc/sudoers
+
+#install yay
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si --noconfirm
 
 #Enable Services
 systemctl enable {sshd,NetworkManager}
@@ -101,5 +107,11 @@ export -f Buildout
 
 #Enter arch-chroot and run function
 arch-chroot /mnt /bin/bash -c "Buildout"
+echo "yay,openssh,git,NetworkManager are installed"
 echo "you can reboot now"
+echo "to install the starter pack run ./starter" && echo "includes: neovim,rofi,brave,zsh,kitty,discord,steam"
+echo "to install DE run ./plasma ./i3 ./gnome respectively. If you install i3 we recommend installing DE first"
+#add package support for above
+
+
 
