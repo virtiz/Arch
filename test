@@ -15,25 +15,35 @@ sudo parted $device name 2 boot
 sudo parted $device mkpart primary 800MiB 100%
 sudo parted $device name 3 lvm
 sudo parted $device set 3 lvm on
-lvmdevice=`sudo fdisk -l $device | grep LVM | awk '{print $1}'`
-efidevice=`sudo fdisk -l $device | grep EFI | awk '{print $1}'`
-bootdevice=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
-pvcreate $lvmdevice
-vgcreate lvm lvmdevice
+echo "partitions created"
+lvmpart=`sudo fdisk -l $device | grep LVM | awk '{print $1}'`
+efipart=`sudo fdisk -l $device | grep EFI | awk '{print $1}'`
+bootpart=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
+mkfs.fat -F32 $efipart
+mkfs.ext2 $bootpart
+echo "partitions formatted"
+pvcreate $lvmpart
+vgcreate lvm $lvmpart
 lvcreate -n root -L 50G lvm
 lvcreate -n swap -L 32G lvm
 lvcreate -n home -l 100%FREE lvm
-mkfs.fat -F32 $efidevice
-mkfs.ext2 $bootdevice
+echo "volumes created"
 mkfs.btrfs -L root /dev/lvm/root
+echo "root formatted"
 mkfs.btrfs -L home /dev/lvm/home
+echo "home formatted"
 mkswap /dev/lvm/swap
 swapon /dev/lvm/swap
+echo "swap is on"
 mount /dev/lvm/root /mnt
+echo "mounted root"
 mkdir /mnt/{home,boot}
-mount $bootdevice /mnt/boot
+echo "home,boot directory made"
+mount $bootpart /mnt/boot
+echo "mounted boot"
 mkdir /mnt/boot/efi
-mount $efidevice /mnt/boot/efi
+mount $efipart /mnt/boot/efi
+echo" mounted efi"
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
