@@ -4,7 +4,7 @@
 fdisk -l
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
-
+#this line is a test-delete it
 ####Partition Drive####
 sudo parted $device mklabel gpt
 sudo parted $device mkpart ESP fat32 1MiB 513MiB
@@ -63,7 +63,6 @@ read locale
 
 lang="en_US.UTF-8"
 locale="en_US.UTF-8 UTF-8"
-
 
 #Set information for devices/timezones
 echo $hostname > /etc/hostname
