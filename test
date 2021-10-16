@@ -50,8 +50,7 @@ read locale
 export lang="en_US.UTF-8"
 export locale="en_US.UTF-8 UTF-8"
 export username=$user2
-export hostname=$host
-export locale=$local
+
 
 #Set information for devices/timezones
 echo $hostname > /etc/hostname
