@@ -99,8 +99,10 @@ sed -i '/^# %wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
 sed -i "/root ALL=(ALL)/ i $username ALL=(ALL) ALL" /etc/sudoers
 
 #install yay
-su $username
+
 git clone https://aur.archlinux.org/yay.git
+chmod 77 yay
+su $username
 cd yay
 makepkg -si --noconfirm
 
