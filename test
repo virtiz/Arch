@@ -4,6 +4,10 @@
 fdisk -l
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
+echo -n "size of root partition? ie: 50 for 50G: "
+read rootsz
+echo -n "Size of Swap: "
+read swapsz
 #this line is a test-delete it
 ####Partition Drive####
 sudo parted $device mklabel gpt
@@ -24,8 +28,8 @@ mkfs.ext2 $bootpart
 echo "partitions formatted"
 pvcreate -ff $lvmpart
 vgcreate lvm $lvmpart
-lvcreate -n root -L 50G lvm
-lvcreate -n swap -L 32G lvm
+lvcreate -n root -L $rootsz"G" lvm
+lvcreate -n swap -L $swapsz"G" lvm
 lvcreate -n home -l 100%FREE lvm
 echo "volumes created"
 mkfs.btrfs -L root /dev/lvm/root
@@ -95,6 +99,7 @@ sed -i '/^# %wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
 sed -i "/root ALL=(ALL)/ i $username ALL=(ALL) ALL" /etc/sudoers
 
 #install yay
+su $username
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -si --noconfirm
@@ -107,10 +112,13 @@ export -f Buildout
 
 #Enter arch-chroot and run function
 arch-chroot /mnt /bin/bash -c "Buildout"
-echo "yay,openssh,git,NetworkManager are installed"
-echo "you can reboot now"
-echo "to install the starter pack run ./starter" && echo "includes: neovim,rofi,brave,zsh,kitty,discord,steam"
-echo "to install DE run ./plasma ./i3 ./gnome respectively. If you install i3 we recommend installing DE first"
+clear
+echo "yay,openssh,git,NetworkManager have been insalled. You may reboot now"
+echo "would you like to install a Desktop Environment?"
+read responsede
+#if ($responsede -eq y || $responsede -eq Y){run DE function}
+#echo "to install the starter pack run ./starter" && echo "includes: neovim,rofi,brave,zsh,kitty,discord,steam"
+#echo "to install DE run ./plasma ./i3 ./gnome respectively. If you install i3 we recommend installing DE first"
 #add package support for above
 
 
