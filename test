@@ -56,7 +56,9 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 
 #Function Buildout
 Buildout(){
-
+#Add multilib mirrors
+sed -i '93s/^#//' /etc/pacman.conf
+sed -i '94s/^#//' /etc/pacman.conf
 #Ask Questions
 echo -n "What username would you like? "
 read username
@@ -65,14 +67,13 @@ read hostname
 echo -n "what is your locale?  ex: America/Phoenix "
 read locale
 
-lang="en_US.UTF-8"
-locale="en_US.UTF-8 UTF-8"
 
-#Set information for devices/timezones
+#Set user preferences
+lang="en_US.UTF-8"
 echo $hostname > /etc/hostname
-ln -s /usr/share/zoneinfo/$countrycode/$timezone /etc/localtime
+ln -s /usr/share/zoneinfo/$locale /etc/localtime
 echo "LANG=$lang" >> /etc/locale.conf
-sed -i "/$locale/s/^#//" /etc/locale.gen
+sed -i '177s/^#//' /etc/locale.gen
 locale-gen
 hwclock --systohc
 
@@ -94,34 +95,32 @@ grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
-#Give users with Wheel sudo access
+#Give users access in sudoers
 sed -i '/^# %wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
 sed -i "/root ALL=(ALL)/ i $username ALL=(ALL) ALL" /etc/sudoers
 
-#install yay
+#Enable Services
+systemctl enable {sshd,NetworkManager}
 
+#install packages for user
+#yay install
 git clone https://aur.archlinux.org/yay.git
 chmod 777 yay
 cd yay
 sudo -u $username makepkg -si --noconfirm
 
-#Enable Services
-systemctl enable {sshd,NetworkManager}
 }
-#Finish funtion
-export -f Buildout
 
-#Enter arch-chroot and run function
+export -f Buildout
 arch-chroot /mnt /bin/bash -c "Buildout"
+
+#cleanup and say goodbye
 clear
 echo "yay,openssh,git,NetworkManager have been insalled. You may reboot now"
 echo "would you like to install a Desktop Environment? after rebooting launch ./nextsteps"
+
+
+#Future NOTES
 #create the DE and start apps scripts and move them to the /home/$username/
-#read responsede
-#if ($responsede -eq y || $responsede -eq Y){run DE function}
 #echo "to install the starter pack run ./starter" && echo "includes: neovim,rofi,brave,zsh,kitty,discord,steam"
 #echo "to install DE run ./plasma ./i3 ./gnome respectively. If you install i3 we recommend installing DE first"
-#add package support for above
-
-
-
