@@ -101,10 +101,9 @@ sed -i "/root ALL=(ALL)/ i $username ALL=(ALL) ALL" /etc/sudoers
 #install yay
 
 git clone https://aur.archlinux.org/yay.git
-chmod 77 yay
-su $username
+chmod 777 yay
 cd yay
-makepkg -si --noconfirm
+sudo -u $username makepkg -si --noconfirm
 
 #Enable Services
 systemctl enable {sshd,NetworkManager}
@@ -116,8 +115,9 @@ export -f Buildout
 arch-chroot /mnt /bin/bash -c "Buildout"
 clear
 echo "yay,openssh,git,NetworkManager have been insalled. You may reboot now"
-echo "would you like to install a Desktop Environment?"
-read responsede
+echo "would you like to install a Desktop Environment? after rebooting launch ./nextsteps"
+#create the DE and start apps scripts and move them to the /home/$username/
+#read responsede
 #if ($responsede -eq y || $responsede -eq Y){run DE function}
 #echo "to install the starter pack run ./starter" && echo "includes: neovim,rofi,brave,zsh,kitty,discord,steam"
 #echo "to install DE run ./plasma ./i3 ./gnome respectively. If you install i3 we recommend installing DE first"
