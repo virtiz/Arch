@@ -1,8 +1,13 @@
 #!/bin/sh -e
 
 ######Define Vairables#####
+fdisk -l
 echo -n "What drive do you want to install on? ie: /dev/vda "
 read device
+echo -n "size of root partition? ie: 50 for 50G: "
+read rootsz
+echo -n "Size of Swap: "
+read swapsz
 #this line is a test-delete it
 ####Partition Drive####
 sudo parted $device mklabel gpt
@@ -14,22 +19,35 @@ sudo parted $device name 2 boot
 sudo parted $device mkpart primary 800MiB 100%
 sudo parted $device name 3 lvm
 sudo parted $device set 3 lvm on
-pvcreate $device"3"
-vgcreate lvm $device"3"
-lvcreate -n root -L 15G lvm
-lvcreate -n swap -L 10G lvm
+echo "partitions created"
+lvmpart=`sudo fdisk -l $device | grep LVM | awk '{print $1}'`
+efipart=`sudo fdisk -l $device | grep EFI | awk '{print $1}'`
+bootpart=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
+mkfs.fat -F32 $efipart
+mkfs.ext2 $bootpart
+echo "partitions formatted"
+pvcreate -ff $lvmpart
+vgcreate lvm $lvmpart
+lvcreate -n root -L $rootsz"G" lvm
+lvcreate -n swap -L $swapsz"G" lvm
 lvcreate -n home -l 100%FREE lvm
-mkfs.fat -F32 $device"1"
-mkfs.ext2 $device"2"
+echo "volumes created"
 mkfs.btrfs -L root /dev/lvm/root
+echo "root formatted"
 mkfs.btrfs -L home /dev/lvm/home
+echo "home formatted"
 mkswap /dev/lvm/swap
 swapon /dev/lvm/swap
+echo "swap is on"
 mount /dev/lvm/root /mnt
+echo "mounted root"
 mkdir /mnt/{home,boot}
-mount $device"2" /mnt/boot
+echo "home,boot directory made"
+mount $bootpart /mnt/boot
+echo "mounted boot"
 mkdir /mnt/boot/efi
-mount $device"1" /mnt/boot/efi
+mount $efipart /mnt/boot/efi
+echo "mounted efi"
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
@@ -38,25 +56,24 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 
 #Function Buildout
 Buildout(){
-
+#Add multilib mirrors
+sed -i '93s/^#//' /etc/pacman.conf
+sed -i '94s/^#//' /etc/pacman.conf
 #Ask Questions
 echo -n "What username would you like? "
-read user2
+read username
 echo -n "What HostName would you like? "
-read host
+read hostname
 echo -n "what is your locale?  ex: America/Phoenix "
 read locale
 
-export lang="en_US.UTF-8"
-export locale="en_US.UTF-8 UTF-8"
-export username=$user2
 
-
-#Set information for devices/timezones
+#Set user preferences
+lang="en_US.UTF-8"
 echo $hostname > /etc/hostname
-ln -s /usr/share/zoneinfo/$countrycode/$timezone /etc/localtime
+ln -s /usr/share/zoneinfo/$locale /etc/localtime
 echo "LANG=$lang" >> /etc/locale.conf
-sed -i "/$locale/s/^#//" /etc/locale.gen
+sed -i '177s/^#//' /etc/locale.gen
 locale-gen
 hwclock --systohc
 
@@ -68,26 +85,42 @@ echo "Password for "$username
 passwd $username
 
 #Install base softwares
-pacman -Syyu networkmanager neovim lvm2 sudo brave openssh --noconfirm
+sudo pacman -Sy && sudo pacman -S networkmanager lvm2 sudo openssh git --noconfirm
 
 #Correct hooks to add lvm2
-sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/s/^/HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)'/ /etc/mkinitcpio.conf
-
+sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/ i HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)' /etc/mkinitcpio.conf
+sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/ d' /etc/mkinitcpio.conf
 #Grub install
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -p linux
 
-#Give users with Wheel sudo access
+#Give users access in sudoers
 sed -i '/^# %wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
+sed -i "/root ALL=(ALL)/ i $username ALL=(ALL) ALL" /etc/sudoers
 
 #Enable Services
 systemctl enable {sshd,NetworkManager}
+
+#install packages for user
+#yay install
+git clone https://aur.archlinux.org/yay.git
+chmod 777 yay
+cd yay
+sudo -u $username makepkg -si --noconfirm
+
 }
-#Finish funtion
+
 export -f Buildout
-
-#Enter arch-chroot and run function
 arch-chroot /mnt /bin/bash -c "Buildout"
-echo "you can reboot now"
 
+#cleanup and say goodbye
+clear
+echo "yay,openssh,git,NetworkManager have been insalled. You may reboot now"
+echo "would you like to install a Desktop Environment? after rebooting launch ./nextsteps"
+
+
+#Future NOTES
+#create the DE and start apps scripts and move them to the /home/$username/
+#echo "to install the starter pack run ./starter" && echo "includes: neovim,rofi,brave,zsh,kitty,discord,steam"
+#echo "to install DE run ./plasma ./i3 ./gnome respectively. If you install i3 we recommend installing DE first"
