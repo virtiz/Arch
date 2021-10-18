@@ -85,7 +85,7 @@ echo "Password for "$username
 passwd $username
 
 #Install base softwares
-sudo pacman -Sy && sudo pacman -S networkmanager lvm2 sudo openssh git --noconfirm
+sudo pacman -Sy && sudo pacman -S networkmanager lvm2 sudo openssh git cifs-utils --noconfirm
 
 #Correct hooks to add lvm2
 sed -i '/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/ i HOOKS=(base udev autodetect modconf block lvm2 filesystems keyboard fsck)' /etc/mkinitcpio.conf
