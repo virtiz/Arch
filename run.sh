@@ -1,12 +1,21 @@
 #!/bin/sh -e
 
 ######Define Vairables#####
+
+##Set Defaults
+device = "/dev/vda"
+rootsz = "15"
+swapsz = "5"
+lang="en_US.UTF-8"
+locale = "America/Phoenix"
+username = "owner"
+hostname = "arch-build"
 fdisk -l
-echo -n "What drive do you want to install on? ie: /dev/vda "
+echo -n "Enter disk name to install Arch on, Press enter for default (/dev/vda): "
 read device
-echo -n "size of root partition? ie: 50 for 50G: "
+echo -n "Enter partition size for Root, Press enter for default (15): "
 read rootsz
-echo -n "Size of Swap: "
+echo -n "Size of Swap? press enter for default (5):  "
 read swapsz
 #this line is a test-delete it
 ####Partition Drive####
@@ -25,29 +34,20 @@ efipart=`sudo fdisk -l $device | grep EFI | awk '{print $1}'`
 bootpart=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
 mkfs.fat -F32 $efipart
 mkfs.ext2 $bootpart
-echo "partitions formatted"
 pvcreate -ff $lvmpart
 vgcreate lvm $lvmpart
 lvcreate -n root -L $rootsz"G" lvm
 lvcreate -n swap -L $swapsz"G" lvm
 lvcreate -n home -l 100%FREE lvm
-echo "volumes created"
 mkfs.btrfs -L root /dev/lvm/root
-echo "root formatted"
 mkfs.btrfs -L home /dev/lvm/home
-echo "home formatted"
 mkswap /dev/lvm/swap
 swapon /dev/lvm/swap
-echo "swap is on"
 mount /dev/lvm/root /mnt
-echo "mounted root"
 mkdir /mnt/{home,boot}
-echo "home,boot directory made"
 mount $bootpart /mnt/boot
-echo "mounted boot"
 mkdir /mnt/boot/efi
 mount $efipart /mnt/boot/efi
-echo "mounted efi"
 mount /dev/lvm/home /mnt/home
 
 ####Setup Configs####
@@ -59,17 +59,17 @@ Buildout(){
 #Add multilib mirrors
 sed -i '93s/^#//' /etc/pacman.conf
 sed -i '94s/^#//' /etc/pacman.conf
+
 #Ask Questions
-echo -n "What username would you like? "
+echo -n "Enter Username, Press enter for Default (owner):  "
 read username
-echo -n "What HostName would you like? "
+echo -n "Enter HostName, Press enter for Default (Arch-build): "
 read hostname
-echo -n "what is your locale?  ex: America/Phoenix "
+echo -n "Enter locale, Press enter for default (America/Phoenix): "
 read locale
 
 
 #Set user preferences
-lang="en_US.UTF-8"
 echo $hostname > /etc/hostname
 ln -s /usr/share/zoneinfo/$locale /etc/localtime
 echo "LANG=$lang" >> /etc/locale.conf
@@ -78,13 +78,13 @@ locale-gen
 hwclock --systohc
 
 #Set Passwords
-echo "Password for root"
+echo "Enter root password: "
 passwd root
 useradd -m -g users -G wheel $username
-echo "Password for "$username
+echo "Enter "$username" password: "
 passwd $username
 
-#Install base softwares
+#Install base software packages
 sudo pacman -Sy && sudo pacman -S networkmanager lvm2 sudo openssh git cifs-utils --noconfirm
 
 #Correct hooks to add lvm2
