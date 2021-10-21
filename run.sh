@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-######Define Vairables
+##Define Vairables
 device = "/dev/vda"
 rootsz = "15"
 swapsz = "5"
@@ -16,7 +16,7 @@ read rootsz
 echo -n "Size of Swap? press enter for default (5):  "
 read swapsz
 
-###Partition the selected Drive
+##Partition the selected Drive
 sudo parted $device mklabel gpt
 sudo parted $device mkpart ESP fat32 1MiB 513MiB
 sudo parted $device set 1 boot on
@@ -27,7 +27,7 @@ sudo parted $device mkpart primary 800MiB 100%
 sudo parted $device name 3 lvm
 sudo parted $device set 3 lvm on
 
-##Format the LVM partition
+##Format the LVM partition (creating Volume group and volumes) 
 lvmpart=`sudo fdisk -l $device | grep LVM | awk '{print $1}'`
 efipart=`sudo fdisk -l $device | grep EFI | awk '{print $1}'`
 bootpart=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
@@ -58,7 +58,8 @@ pacstrap /mnt base base-devel linux linux-firmware grub efibootmgr vim btrfs-pro
 genfstab -U -p /mnt > /mnt/etc/fstab
 
 ##Create function called Buildout
-Buildout(){
+Buildout()
+{
 #Add multilib mirrors
 sed -i '93s/^#//' /etc/pacman.conf
 sed -i '94s/^#//' /etc/pacman.conf
@@ -111,7 +112,6 @@ git clone https://aur.archlinux.org/yay.git
 chmod 777 yay
 cd yay
 sudo -u $username makepkg -si --noconfirm
-
 }
 
 ##export the function and call it in new environment
