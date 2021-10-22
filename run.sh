@@ -1,13 +1,13 @@
 #!/bin/sh -e
 
 ##Define Vairables
-device = "/dev/vda"
-rootsz = "15"
-swapsz = "5"
+device="/dev/vda"
+rootsz="15"
+swapsz="5"
 lang="en_US.UTF-8"
-locale = "America/Phoenix"
-username = "owner"
-hostname = "arch-build"
+locale="America/Phoenix"
+username="owner"
+hostname="arch-build"
 fdisk -l
 echo -n "Enter disk name to install Arch on, Press enter for default (/dev/vda): "
 read device
