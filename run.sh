@@ -17,27 +17,28 @@ echo -n "Size of Swap? press enter for default (5):  "
 read swapsz
 
 ##Partition the selected Drive
-sudo parted $device mklabel gpt
-sudo parted $device mkpart ESP fat32 1MiB 513MiB
-sudo parted $device set 1 boot on
-sudo parted $device name 1 efi
-sudo parted $device mkpart primary 513MiB 800MiB
-sudo parted $device name 2 boot
-sudo parted $device mkpart primary 800MiB 100%
-sudo parted $device name 3 lvm
-sudo parted $device set 3 lvm on
+sudo parted -s $device mklabel gpt
+sudo parted -s $device mkpart ESP fat32 1MiB 513MiB
+sudo parted -s $device set 1 boot on
+sudo parted -s $device name 1 efi
+sudo parted -s $device mkpart primary 513MiB 800MiB
+sudo parted -s $device name 2 boot
+sudo parted -s $device mkpart primary 800MiB 100%
+sudo parted -s $device name 3 lvm
+sudo parted -s $device set 3 lvm on
 
 ##Format the LVM partition (creating Volume group and volumes) 
 lvmpart=`sudo fdisk -l $device | grep LVM | awk '{print $1}'`
 efipart=`sudo fdisk -l $device | grep EFI | awk '{print $1}'`
 bootpart=`sudo fdisk -l $device | grep filesystem | awk '{print $1}'`
-mkfs.fat -F32 $efipart
-mkfs.ext2 $bootpart
+
 pvcreate -ff $lvmpart
 vgcreate lvm $lvmpart
 lvcreate -n root -L $rootsz"G" lvm
 lvcreate -n swap -L $swapsz"G" lvm
 lvcreate -n home -l 100%FREE lvm
+mkfs.fat -F32 $efipart
+mkfs.ext2 $bootpart
 mkfs.btrfs -L root /dev/lvm/root
 mkfs.btrfs -L home /dev/lvm/home
 mkswap /dev/lvm/swap
