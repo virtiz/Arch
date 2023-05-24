@@ -1,4 +1,5 @@
-# Automated Arch Install for Basic barebones install
+# Automated Arch Install for vanilla Arch
+#This was for testing and not recommended to be used
 
 #prompts: device name,root size, swap size, username, root password, user password                                                                                    
 #Packages installed: yay,NetworkManager,openssh,sudo
